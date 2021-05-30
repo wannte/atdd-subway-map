@@ -1,12 +1,11 @@
 package wooteco.subway.line;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 import wooteco.subway.line.dao.LineDao;
 import wooteco.subway.line.domain.LineEntity;
 import wooteco.subway.line.dto.LineRequest;
@@ -27,23 +26,18 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willDoNothing;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.*;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class LineServiceTest {
     private static final Station 잠실역 = new Station(1L, "잠실역");
     private static final Station 강남역 = new Station(2L, "강남역");
-    private static final Station 강변역 = new Station(3L, "강변역");
 
     private static final String LINE_NAME = "2호선";
     private static final String LINE_COLOR = "초록색";
 
     private static final LineRequest LINE_REQUEST = new LineRequest(LINE_NAME, LINE_COLOR, 잠실역.getId(), 강남역.getId(), 3);
 
-    @InjectMocks
-    private LineService lineService;
 
     @Mock
     private LineDao lineDao;
@@ -54,13 +48,8 @@ class LineServiceTest {
     @Mock
     private SectionService sectionService;
 
-
-    @BeforeEach
-    void setUp() {
-        given(stationService.findById(1L)).willReturn(잠실역);
-        given(stationService.findById(2L)).willReturn(강남역);
-        given(stationService.findById(3L)).willReturn(강변역);
-    }
+    @InjectMocks
+    private LineService lineService;
 
     @Test
     @DisplayName("id로 노선 정보 조회")
@@ -74,7 +63,8 @@ class LineServiceTest {
 
         LineResponse actual = lineService.findById(lineId);
         LineResponse expected = new LineResponse(line, StationResponse.listOf(sections.path()));
-        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+        assertThat(actual).usingRecursiveComparison()
+                .isEqualTo(expected);
     }
 
     @Test
@@ -91,7 +81,8 @@ class LineServiceTest {
 
         Long createdId = lineService.createLine(LINE_REQUEST);
 
-        verify(sectionService).initSection(lineId, sectionRequest);
+        then(sectionService).should()
+                .initSection(lineId, sectionRequest);
         assertThat(createdId).isEqualTo(lineId);
     }
 
@@ -128,7 +119,8 @@ class LineServiceTest {
         LineRequest modifyRequest = new LineRequest(newName, newColor);
         lineService.modifyLine(lineId, modifyRequest);
 
-        verify(lineDao).update(lineId, newName, newColor);
+        then(lineDao).should()
+                .update(lineId, newName, newColor);
     }
 
     @Test
@@ -155,7 +147,8 @@ class LineServiceTest {
 
         lineService.addSection(lineId, sectionRequest);
 
-        verify(sectionService).addSection(lineId, sectionRequest);
+        then(sectionService).should()
+                .addSection(lineId, sectionRequest);
     }
 
 
@@ -179,7 +172,8 @@ class LineServiceTest {
 
         lineService.deleteSection(lineId, stationId);
 
-        verify(sectionService).deleteSection(lineId, stationId);
+        then(sectionService).should()
+                .deleteSection(lineId, stationId);
     }
 
 

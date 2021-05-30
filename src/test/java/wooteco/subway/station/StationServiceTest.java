@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.mockito.junit.jupiter.MockitoExtension;
 import wooteco.subway.station.dao.StationDao;
 import wooteco.subway.station.domain.Station;
 import wooteco.subway.station.dto.StationRequest;
@@ -18,18 +18,17 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 class StationServiceTest {
     private static final String stationName = "잠실역";
     private static final StationRequest stationRequest = new StationRequest(stationName);
 
-    @InjectMocks
-    private StationService stationService;
-
     @Mock
     private StationDao stationDao;
+
+    @InjectMocks
+    private StationService stationService;
 
     @Test
     @DisplayName("역 정상 생성 테스트")
